@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.myapplication.components.CharacterItem
 import com.example.myapplication.components.Searcher
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-@Preview(showBackground = true)
+@Preview(showBackground = true)@Preview(showBackground = true)
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -42,8 +43,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 myValue = it
             }
         )
+        CharacterItem(imageUrl = "https://cdn.thesimpsonsapi.com/500/character/1.webp", name = "Homer Simpson", quote = "D'oh!", description = "hola")
     }
 }
+
 
 
 @Composable
