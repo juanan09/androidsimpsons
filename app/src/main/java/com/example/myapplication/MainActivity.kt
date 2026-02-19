@@ -4,54 +4,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapplication.components.CharacterItem
-import com.example.myapplication.components.Searcher
+import com.example.myapplication.core.network.NetworkHelper
+import com.example.myapplication.data.remote.RetrofitClient
+import com.example.myapplication.data.repository.SimpsonsRepositoryImpl
+import com.example.myapplication.domain.usecase.GetCharacterUseCase
+import com.example.myapplication.presentation.ui.CharactersScreen
+import com.example.myapplication.presentation.viewmodel.CharacterViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Inyección de dependencias manual (obligatorio por arquitectura)
+        val networkHelper = NetworkHelper(applicationContext)
+        val api = RetrofitClient.api
+        val repository = SimpsonsRepositoryImpl(api, networkHelper)
+        val getCharacterUseCase = GetCharacterUseCase(repository)
+        val viewModel = CharacterViewModel(getCharacterUseCase)
+
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeScreen(modifier = Modifier.padding(innerPadding))
-                }
+                // CharactersScreen es ahora la pantalla principal
+                CharactersScreen(viewModel = viewModel)
             }
         }
-    }
-}
-@Preview(showBackground = true)@Preview(showBackground = true)
-@Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxSize()) {
-        var myValue: String by remember{ mutableStateOf("Juanan") }
-        Searcher(
-            value = myValue,
-            onValueChange = {
-                myValue = it
-            }
-        )
-        CharacterItem(imageUrl = "https://cdn.thesimpsonsapi.com/500/character/1.webp", name = "Homer Simpson", quote = "D'oh!", description = "hola")
-    }
-}
-
-
-
-@Composable
-fun HomeScreenPreview() {
-    MyApplicationTheme {
-        HomeScreen()
     }
 }
