@@ -8,6 +8,7 @@ import com.example.myapplication.core.network.NetworkHelper
 import com.example.myapplication.data.remote.RetrofitClient
 import com.example.myapplication.data.repository.SimpsonsRepositoryImpl
 import com.example.myapplication.domain.usecase.GetCharacterUseCase
+import com.example.myapplication.domain.usecase.GetCharactersUseCase
 import com.example.myapplication.presentation.ui.CharactersScreen
 import com.example.myapplication.presentation.viewmodel.CharacterViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -20,13 +21,17 @@ class MainActivity : ComponentActivity() {
         val networkHelper = NetworkHelper(applicationContext)
         val api = RetrofitClient.api
         val repository = SimpsonsRepositoryImpl(api, networkHelper)
+        
+        // Instanciamos los dos casos de uso
         val getCharacterUseCase = GetCharacterUseCase(repository)
-        val viewModel = CharacterViewModel(getCharacterUseCase)
+        val getCharactersUseCase = GetCharactersUseCase(repository)
+
+        // Pasamos ambos al ViewModel
+        val viewModel = CharacterViewModel(getCharacterUseCase, getCharactersUseCase)
 
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                // CharactersScreen es ahora la pantalla principal
                 CharactersScreen(viewModel = viewModel)
             }
         }

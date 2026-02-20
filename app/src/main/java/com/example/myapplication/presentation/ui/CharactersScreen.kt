@@ -1,27 +1,19 @@
 package com.example.myapplication.presentation.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.components.CharacterItem
-import com.example.myapplication.components.Searcher
 import com.example.myapplication.core.error.AppError
+import com.example.myapplication.presentation.ui.components.CharacterItem
+import com.example.myapplication.presentation.ui.components.Searcher
 import com.example.myapplication.presentation.viewmodel.CharacterViewModel
 
 @Composable
@@ -31,62 +23,88 @@ fun CharactersScreen(viewModel: CharacterViewModel) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color(0xFF1A1A1A)
+        containerColor = Color(0xFF1A1A1A),
+        topBar = {
+            Column(modifier = Modifier.background(Color(0xFF1A1A1A))) {
+                Spacer(modifier = Modifier.height(32.dp))
+                Searcher(
+                    value = searchId,
+                    onValueChange = { searchId = it },
+                    placeholder = "Busca por nombre o ID..."
+                )
+            }
+        },
+        bottomBar = {
+            if (state.characters.isNotEmpty()) {
+                Surface(color = Color(0xFF2A2803)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { viewModel.loadCharacters(state.currentPage - 1) },
+                            enabled = state.currentPage > 1 && !state.isLoading
+                        ) {
+                            Text("Anterior")
+                        }
+                        
+                        Text(
+                            text = "Página ${state.currentPage} de ${state.totalPages}",
+                            color = Color.White
+                        )
+
+                        Button(
+                            onClick = { viewModel.loadCharacters(state.currentPage + 1) },
+                            enabled = state.currentPage < state.totalPages && !state.isLoading
+                        ) {
+                            Text("Siguiente")
+                        }
+                    }
+                }
+            }
+        }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            Searcher(
-                value = searchId,
-                onValueChange = { searchId = it },
-                placeholder = "Enter Character ID (e.g. 1)"
-            )
-            
-            Button(
-                onClick = { 
-                    searchId.toIntOrNull()?.let { viewModel.getCharacter(it) } 
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text("Search Character")
+            if (state.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.Yellow
+                )
             }
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = Color.Yellow
-                    )
-                }
-
-                state.character?.let { char ->
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(state.characters) { character ->
                     CharacterItem(
-                        name = char.name,
-                        quote = char.phrases.firstOrNull() ?: "No phrases found",
-                        description = char.occupation,
-                        imageUrl = char.imageUrl
+                        name = character.name,
+                        quote = character.phrases.firstOrNull() ?: "D'oh!",
+                        description = character.occupation,
+                        imageUrl = character.imageUrl
                     )
                 }
+            }
 
-                state.error?.let { error ->
-                    val errorMessage = when(error) {
-                        AppError.NoInternet -> "No internet connection"
-                        AppError.Timeout -> "Request timed out"
-                        is AppError.HttpError -> "Server error: ${error.code}"
-                        is AppError.Unknown -> "An error occurred: ${error.message}"
-                    }
-                    Text(
-                        text = errorMessage,
-                        color = Color.Red,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(16.dp)
-                    )
+            state.error?.let { error ->
+                val errorMessage = when (error) {
+                    is AppError.HttpError -> "Error del servidor (${error.code})"
+                    AppError.NoInternet -> "Sin conexión a internet"
+                    AppError.Timeout -> "Tiempo de espera agotado"
+                    is AppError.Unknown -> "Error desconocido: ${error.message}"
                 }
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp)
+                )
             }
         }
     }
