@@ -1,37 +1,45 @@
 # Android Simpsons App 🍩
 
-Este es un proyecto de Android moderno desarrollado con **Jetpack Compose** para explorar y buscar personajes de la serie "Los Simpsons" consumiendo la API de [thesimpsonsapi.com](https://thesimpsonsapi.com/).
+[Versión en Español](README.es.md)
 
-## 🚀 Tecnologías Utilizadas
+This is a modern Android project developed with **Jetpack Compose** to explore and search for characters from "The Simpsons" series by consuming the [thesimpsonsapi.com](https://thesimpsonsapi.com/) API.
 
-- **Kotlin**: Lenguaje de programación principal.
-- **Jetpack Compose**: Framework moderno para la creación de interfaces de usuario nativas.
-- **Material 3**: Última evolución de Material Design para componentes UI.
-- **State Hoisting**: Patrón de diseño para el manejo eficiente del estado en Compose.
-- **[Stitch](https://stitch.withgoogle.com/)**: Herramienta utilizada para definir y trasladar la capa visual del diseño al código de forma eficiente.
-- **Retrofit / Coil** (Próximamente): Para el consumo de la API REST y carga de imágenes.
+## 🚀 Technologies Used
 
-## 🎨 Diseño y Capa Visual (Stitch)
+- **Kotlin**: Primary programming language.
+- **Jetpack Compose**: Modern framework for building native user interfaces.
+- **Material 3**: Latest evolution of Material Design for UI components.
+- **MVVM + Clean Architecture**: Robust and scalable architecture divided into layers (Presentation, Domain, Data, Core).
+- **Manual Dependency Injection**: Implementation of DI without external frameworks (Hilt/Koin) to keep the project lightweight.
+- **Retrofit**: Consuming the official Simpsons REST API.
+- **Coil**: Efficient image loading from remote URLs.
+- **Navigation Compose**: Route management and screen transitions.
+- **[Stitch](https://stitch.withgoogle.com/)**: Tool used to define and translate the visual design layer into code.
 
-Para asegurar la fidelidad visual y una integración fluida entre el diseño y el código,  utilizando **Stitch by Google**. 
+## 📱 Screens and Features
 
-**¿Qué es Stitch?**
-Es una plataforma que facilita la transición del diseño a la implementación técnica. Permite:
-- Mantener una consistencia visual rigurosa (colores, tipografías, espaciados).
-- Generar tokens y referencias visuales que se traducen directamente en componentes de Jetpack Compose.
-- Agilizar el flujo de trabajo entre la concepción visual y el desarrollo nativo.
+### 1. Main Screen (Paginated List)
+- Displays a dynamic list of characters loaded from the API.
+- Includes a real pagination system to navigate through the hundreds of available characters.
+- **SimpsonHeader**: A custom header with the series' iconic visual style.
 
-## 🛠️ Componentes Destacados
+### 2. Intelligent Hybrid Search
+- **Search by ID**: If you enter a number, the app directly queries the API to fetch that specific character.
+- **Search by Name**: If you enter text, the app filters in real-time from the locally loaded list.
+- Rounded "pill" visual style integrated into the header.
 
-### Searcher Composable
-Un buscador personalizado con los colores temáticos de la serie, basado en las guías visuales obtenidas de Stitch, que permite filtrar contenido en tiempo real mediante elevación de estado.
+### 3. Detail Screen
+- Tapping on any character navigates to a detailed view.
+- Shows high-resolution image, occupation, age, and gender.
+- **Phrases List**: Includes a section with all the character's famous quotes in individual cards.
 
-## 📌 Próximos Pasos
+## 🛠️ Project Architecture
 
-1. Configuración de **Retrofit** para conectar con `thesimpsonsapi.com`.
-2. Implementación de una lista (LazyColumn) para mostrar los personajes.
-3. Detalle de personaje al hacer clic.
-4. Manejo de imágenes con **Coil**.
+The project strictly follows the `ARCHITECTURE.md` file:
+- **Data Layer**: Repositories and data sources (Retrofit). Mapping DTOs to domain models.
+- **Domain Layer**: Pure business models and Use Cases with single responsibility.
+- **Presentation Layer**: ViewModels managing UI state immutably via `StateFlow` and Compose screens.
+- **Core Layer**: Network utilities, controlled error handling (`AppError`), and connectivity validation.
 
 ---
-Desarrollado como práctica de integración de APIs y UI moderna en Android.
+Developed as a high visual and technical fidelity MVP application.
