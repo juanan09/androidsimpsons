@@ -38,13 +38,13 @@ fun CharacterItem(
     description: String,
     imageUrl: String,
     isFavorite: Boolean = false,
-    onClick: () -> Unit = {} // Nuevo parámetro para el clic
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onClick() }, // Hacemos la tarjeta clicable
+            .clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = SearchBarBackground
@@ -86,7 +86,7 @@ fun CharacterItem(
                 }
 
                 Text(
-                    text = "\"$quote\"",
+                    text = quote,
                     color = SearchBarContent,
                     fontSize = 16.sp,
                     fontStyle = FontStyle.Italic,

@@ -128,7 +128,7 @@ fun CharacterDetailScreen(
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF2A2803))
                         ) {
                             Text(
-                                text = "\"$phrase\"",
+                                text = phrase,
                                 modifier = Modifier.padding(16.dp),
                                 fontStyle = FontStyle.Italic,
                                 color = Color.White
