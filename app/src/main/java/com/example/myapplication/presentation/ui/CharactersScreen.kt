@@ -14,12 +14,14 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.core.error.AppError
 import com.example.myapplication.presentation.ui.components.CharacterItem
 import com.example.myapplication.presentation.ui.components.Searcher
+import com.example.myapplication.presentation.ui.components.SimpsonHeader
 import com.example.myapplication.presentation.viewmodel.CharacterViewModel
+import com.example.myapplication.ui.theme.SearchBarBackground
 
 @Composable
 fun CharactersScreen(
     viewModel: CharacterViewModel,
-    onCharacterClick: (Int) -> Unit // Nuevo parámetro para navegar al detalle
+    onCharacterClick: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var searchId by remember { mutableStateOf("") }
@@ -28,23 +30,43 @@ fun CharactersScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFF1A1A1A),
         topBar = {
-            Column(modifier = Modifier.background(Color(0xFF1A1A1A))) {
-                Spacer(modifier = Modifier.height(32.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
+                // ENTE 1: ENCABEZADO
+                SimpsonHeader()
+                // ESPACIO DE SEPARACIÓN
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // ENTE 2: BUSCADOR (con sus propios bordes redondeados)
                 Searcher(
                     value = searchId,
                     onValueChange = { 
                         searchId = it
                         viewModel.onSearch(it)
                     },
-                    placeholder = "Busca por nombre o ID..."
+                    placeholder = "Busca por nombre o ID...",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp)
                 )
+                
+                Spacer(modifier = Modifier.height(8.dp))
             }
         },
         bottomBar = {
             if (state.character == null && state.characters.isNotEmpty()) {
-                Surface(color = Color(0xFF2A2803)) {
+                Surface(
+                    color = SearchBarBackground,
+                    tonalElevation = 8.dp
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .navigationBarsPadding(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -82,18 +104,21 @@ fun CharactersScreen(
                         quote = state.character!!.phrases.firstOrNull() ?: "D'oh!",
                         description = state.character!!.occupation,
                         imageUrl = state.character!!.imageUrl,
-                        onClick = { onCharacterClick(state.character!!.id) } // Clic en el resultado de búsqueda
+                        onClick = { onCharacterClick(state.character!!.id) }
                     )
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
                     items(state.characters) { character ->
                         CharacterItem(
                             name = character.name,
                             quote = character.phrases.firstOrNull() ?: "D'oh!",
                             description = character.occupation,
                             imageUrl = character.imageUrl,
-                            onClick = { onCharacterClick(character.id) } // Clic en un item de la lista
+                            onClick = { onCharacterClick(character.id) }
                         )
                     }
                 }
@@ -101,16 +126,18 @@ fun CharactersScreen(
 
             state.error?.let { error ->
                 val errorMessage = when (error) {
-                    is AppError.HttpError -> "Personaje no encontrado (ID: $searchId)"
+                    is AppError.HttpError -> "Personaje no encontrado"
                     AppError.NoInternet -> "Sin conexión a internet"
                     AppError.Timeout -> "Tiempo de espera agotado"
-                    is AppError.Unknown -> "Error: ${error.message}"
+                    is AppError.Unknown -> "Error inesperado"
                 }
                 Text(
                     text = errorMessage,
                     color = Color.Red,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp)
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp)
                 )
             }
         }
