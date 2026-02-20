@@ -9,7 +9,7 @@ import com.example.myapplication.data.remote.RetrofitClient
 import com.example.myapplication.data.repository.SimpsonsRepositoryImpl
 import com.example.myapplication.domain.usecase.GetCharacterUseCase
 import com.example.myapplication.domain.usecase.GetCharactersUseCase
-import com.example.myapplication.presentation.ui.CharactersScreen
+import com.example.myapplication.navigation.AppNavigation
 import com.example.myapplication.presentation.viewmodel.CharacterViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
@@ -22,17 +22,16 @@ class MainActivity : ComponentActivity() {
         val api = RetrofitClient.api
         val repository = SimpsonsRepositoryImpl(api, networkHelper)
         
-        // Instanciamos los dos casos de uso
         val getCharacterUseCase = GetCharacterUseCase(repository)
         val getCharactersUseCase = GetCharactersUseCase(repository)
 
-        // Pasamos ambos al ViewModel
         val viewModel = CharacterViewModel(getCharacterUseCase, getCharactersUseCase)
 
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                CharactersScreen(viewModel = viewModel)
+                // Ahora usamos AppNavigation como punto de entrada
+                AppNavigation(viewModel = viewModel)
             }
         }
     }

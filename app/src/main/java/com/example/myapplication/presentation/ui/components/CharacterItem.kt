@@ -1,6 +1,7 @@
 package com.example.myapplication.presentation.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,11 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.ui.theme.SearchBarBackground
 import com.example.myapplication.ui.theme.SearchBarContent
 
@@ -38,12 +37,14 @@ fun CharacterItem(
     quote: String,
     description: String,
     imageUrl: String,
-    isFavorite: Boolean = false
+    isFavorite: Boolean = false,
+    onClick: () -> Unit = {} // Nuevo parámetro para el clic
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { onClick() }, // Hacemos la tarjeta clicable
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = SearchBarBackground
@@ -103,19 +104,5 @@ fun CharacterItem(
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CharacterItemPreview() {
-    MyApplicationTheme {
-        CharacterItem(
-            name = "Homer Simpson",
-            quote = "D'oh!",
-            description = "The patriarch of the Simpson family, known for his love of donuts and Duff beer.",
-            imageUrl = "https://thesimpsonsapi.com/storage/characters/HomerSimpson.png", // URL de ejemplo
-            isFavorite = true
-        )
     }
 }

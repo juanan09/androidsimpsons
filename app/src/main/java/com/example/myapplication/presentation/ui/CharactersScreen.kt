@@ -17,7 +17,10 @@ import com.example.myapplication.presentation.ui.components.Searcher
 import com.example.myapplication.presentation.viewmodel.CharacterViewModel
 
 @Composable
-fun CharactersScreen(viewModel: CharacterViewModel) {
+fun CharactersScreen(
+    viewModel: CharacterViewModel,
+    onCharacterClick: (Int) -> Unit // Nuevo parámetro para navegar al detalle
+) {
     val state by viewModel.state.collectAsState()
     var searchId by remember { mutableStateOf("") }
 
@@ -38,7 +41,6 @@ fun CharactersScreen(viewModel: CharacterViewModel) {
             }
         },
         bottomBar = {
-            // Solo mostramos la paginación si no hay un personaje específico buscado por ID
             if (state.character == null && state.characters.isNotEmpty()) {
                 Surface(color = Color(0xFF2A2803)) {
                     Row(
@@ -74,24 +76,24 @@ fun CharactersScreen(viewModel: CharacterViewModel) {
             }
 
             if (state.character != null) {
-                // Si la búsqueda fue por ID, mostramos solo ese personaje
                 Column(modifier = Modifier.fillMaxSize()) {
                     CharacterItem(
                         name = state.character!!.name,
                         quote = state.character!!.phrases.firstOrNull() ?: "D'oh!",
                         description = state.character!!.occupation,
-                        imageUrl = state.character!!.imageUrl
+                        imageUrl = state.character!!.imageUrl,
+                        onClick = { onCharacterClick(state.character!!.id) } // Clic en el resultado de búsqueda
                     )
                 }
             } else {
-                // Si no hay búsqueda por ID, mostramos la lista (que puede estar filtrada localmente)
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.characters) { character ->
                         CharacterItem(
                             name = character.name,
                             quote = character.phrases.firstOrNull() ?: "D'oh!",
                             description = character.occupation,
-                            imageUrl = character.imageUrl
+                            imageUrl = character.imageUrl,
+                            onClick = { onCharacterClick(character.id) } // Clic en un item de la lista
                         )
                     }
                 }

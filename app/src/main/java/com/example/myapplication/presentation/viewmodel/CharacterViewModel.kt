@@ -90,4 +90,14 @@ class CharacterViewModel(
             }
         }
     }
+
+    fun resetSearch() {
+        _state.update { 
+            it.copy(
+                character = null, 
+                characters = originalCharacters, 
+                error = null 
+            )
+        }
+    }
 }
