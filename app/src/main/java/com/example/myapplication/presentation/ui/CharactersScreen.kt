@@ -29,27 +29,27 @@ fun CharactersScreen(viewModel: CharacterViewModel) {
                 Spacer(modifier = Modifier.height(32.dp))
                 Searcher(
                     value = searchId,
-                    onValueChange = { searchId = it },
+                    onValueChange = { 
+                        searchId = it
+                        viewModel.onSearch(it)
+                    },
                     placeholder = "Busca por nombre o ID..."
                 )
             }
         },
         bottomBar = {
-            if (state.characters.isNotEmpty()) {
+            // Solo mostramos la paginación si no hay un personaje específico buscado por ID
+            if (state.character == null && state.characters.isNotEmpty()) {
                 Surface(color = Color(0xFF2A2803)) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Button(
                             onClick = { viewModel.loadCharacters(state.currentPage - 1) },
                             enabled = state.currentPage > 1 && !state.isLoading
-                        ) {
-                            Text("Anterior")
-                        }
+                        ) { Text("Anterior") }
                         
                         Text(
                             text = "Página ${state.currentPage} de ${state.totalPages}",
@@ -59,19 +59,13 @@ fun CharactersScreen(viewModel: CharacterViewModel) {
                         Button(
                             onClick = { viewModel.loadCharacters(state.currentPage + 1) },
                             enabled = state.currentPage < state.totalPages && !state.isLoading
-                        ) {
-                            Text("Siguiente")
-                        }
+                        ) { Text("Siguiente") }
                     }
                 }
             }
         }
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
@@ -79,31 +73,42 @@ fun CharactersScreen(viewModel: CharacterViewModel) {
                 )
             }
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(state.characters) { character ->
+            if (state.character != null) {
+                // Si la búsqueda fue por ID, mostramos solo ese personaje
+                Column(modifier = Modifier.fillMaxSize()) {
                     CharacterItem(
-                        name = character.name,
-                        quote = character.phrases.firstOrNull() ?: "D'oh!",
-                        description = character.occupation,
-                        imageUrl = character.imageUrl
+                        name = state.character!!.name,
+                        quote = state.character!!.phrases.firstOrNull() ?: "D'oh!",
+                        description = state.character!!.occupation,
+                        imageUrl = state.character!!.imageUrl
                     )
+                }
+            } else {
+                // Si no hay búsqueda por ID, mostramos la lista (que puede estar filtrada localmente)
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(state.characters) { character ->
+                        CharacterItem(
+                            name = character.name,
+                            quote = character.phrases.firstOrNull() ?: "D'oh!",
+                            description = character.occupation,
+                            imageUrl = character.imageUrl
+                        )
+                    }
                 }
             }
 
             state.error?.let { error ->
                 val errorMessage = when (error) {
-                    is AppError.HttpError -> "Error del servidor (${error.code})"
+                    is AppError.HttpError -> "Personaje no encontrado (ID: $searchId)"
                     AppError.NoInternet -> "Sin conexión a internet"
                     AppError.Timeout -> "Tiempo de espera agotado"
-                    is AppError.Unknown -> "Error desconocido: ${error.message}"
+                    is AppError.Unknown -> "Error: ${error.message}"
                 }
                 Text(
                     text = errorMessage,
                     color = Color.Red,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
+                    modifier = Modifier.align(Alignment.Center).padding(16.dp)
                 )
             }
         }
